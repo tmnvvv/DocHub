@@ -70,6 +70,14 @@ const PAPI = {
 	},
 	getSettings() {
 		return this.request({ url: 'plugin:/idea/settings/get' });
+	},
+	// Сохраняет файл в проекте
+	pushFile(source, content) {
+		return this.request({ url: 'plugin:/idea/code/push/file', source, content });
+	},
+	// TBD 
+	pushCode(code, metadata) {
+		return this.request({ url: 'plugin:/idea/code/push/code', code, metadata });
 	}
 };
 
@@ -87,18 +95,24 @@ const fwCefQuery = '%$dochub-api-interface-func%';
 let cefQuery = params.get('$dochub-api-interface-func');
 
 // Если в параметрах интерфейсная функция не передана...
-if (!cefQuery && window[fwCefQuery]) {
+if (cefQuery) {
+	// eslint-disable-next-line no-console
+	console.info('Нашел интерфейсную функцию в параметрах!');
+} else if (!cefQuery && window[fwCefQuery]) {
 	cefQuery = fwCefQuery;
+	// eslint-disable-next-line no-console
 	console.info('Нашел интерфейсную функцию в коде!');
-} else if (window.localStorage && cefQuery) {
+} else if (!cefQuery && window.localStorage && localStorage.getItem('cefQuery')) {
+	// eslint-disable-next-line no-console
 	console.info('Нашел интерфейсную функцию в localStorage!');
 	cefQuery = localStorage.getItem('cefQuery');
 } else {
-	console.info('Нашел интерфейсную функцию в параметрах!');
+	// eslint-disable-next-line no-console
+	console.info('Интерфейсную функцию не нашел.');
 }
 
 // eslint-disable-next-line no-console
-console.info('Plugin API function: ', cefQuery);
+cefQuery && console.info('Plugin API function: ', cefQuery);
 
 if (cefQuery && window[cefQuery]) {
 	PAPI.cefQuery = window[cefQuery];

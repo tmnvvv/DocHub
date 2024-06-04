@@ -243,12 +243,11 @@ export default {
 	},
 	applyManifest: async function(app, storage) {
 		app.storage = storage;  // Инициализируем данные хранилища
-		app.storage.roles = [];
+        app.storage.roles = [];
+		this.resetCustomFunctions(storage.manifest);
 		validators(app);        // Выполняет валидаторы
 		Object.freeze(app.storage);
-		this.resetCustomFunctions(storage.manifest);
 		this.onApplyManifest.map((listener) => listener(app));
-		console.log('applyManifest');
 	},
 	cleanStorage(app) {
 		this.cacheFunction = null;

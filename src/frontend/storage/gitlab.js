@@ -146,12 +146,12 @@ export default {
 				// Обновляем манифест и фризим объекты
 				context.commit('setManifest', manifest);
 				context.commit('setSources', parser.mergeMap);
-				context.commit('setIsReloading', false);
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
 				}
 
 				entities(manifest);
+				context.commit('setIsReloading', false);
 				rules(manifest,
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
@@ -254,6 +254,7 @@ export default {
 						errors.net.items.push(item);
 					}
 
+					// Может не надо? 
 					context.commit('setIsReloading', false);
 				}
 			};
@@ -332,7 +333,8 @@ export default {
 				.then((response) => {
 					context.commit('setAccessToken', response.data.access_token);
 					context.commit('setRefreshToken', response.data.refresh_token);
-					setTimeout(() => context.dispatch('refreshAccessToken'), (response.data.expires_in - 10) * 1000);
+					// Если expires_in нет, считаем, что токен вечный
+					response.data.expires_in && setTimeout(() => context.dispatch('refreshAccessToken'), (response.data.expires_in - 10) * 1000);
 					if (OAuthCode) context.dispatch('reloadAll');
 				}).catch((e) => {
 					context.commit('appendProblems', [{
